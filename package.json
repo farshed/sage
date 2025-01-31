@@ -1,0 +1,17 @@
+{
+	"name": "sage",
+	"module": "index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"@ai-sdk/deepseek": "^0.1.6",
+		"@openrouter/ai-sdk-provider": "^0.1.0",
+		"ai": "^4.1.9",
+		"elysia": "^1.2.10"
+	}
+}

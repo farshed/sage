@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Sage</title>
+		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+	</head>
+	<body>
+		<div class="flex items-center justify-center h-screen">
+			<button
+				id="chatBtn"
+				class="relative w-24 h-24 text-4xl rounded-full bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors duration-200"
+			>
+				🎙️
+			</button>
+		</div>
+
+		<script>
+			let messages = [];
+			let audio;
+			let mediaRecorder;
+			let audioChunks = [];
+
+			const [IDLE, LISTENING, LOADING, SPEAKING] = [0, 1, 2, 3];
+			let chatState = IDLE;
+
+			const stateIndicator = {
+				[IDLE]: '🎙️',
+				[LISTENING]: '👂',
+				[LOADING]: '⏳',
+				[SPEAKING]: '🗣️'
+			};
+
+			const chatBtn = document.getElementById('chatBtn');
+
+			function setState(newState) {
+				chatState = newState;
+				chatBtn.innerText = stateIndicator[chatState];
+			}
+
+			chatBtn.addEventListener('click', () => {
+				if (chatState === IDLE) {
+					chatState = LISTENING;
+					listen();
+				} else if (chatState === LISTENING) {
+					chatState = LOADING;
+					mediaRecorder.stop();
+				} else if (chatState === LOADING) {
+					chatState = SPEAKING;
+				} else if (chatState === SPEAKING) {
+					if (audio) audio.pause();
+					chatState = IDLE;
+				}
+
+				setState(chatState);
+			});
+
+			async function listen() {
+				try {
+					const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+					mediaRecorder = new MediaRecorder(stream);
+					mediaRecorder.ondataavailable = (event) => {
+						audioChunks.push(event.data);
+					};
+					mediaRecorder.onstop = async () => {
+						const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
+						const wavBlob = await encode(audioBlob);
+						await sendAudio(wavBlob);
+						audioChunks = [];
+					};
+					mediaRecorder.start();
+				} catch (error) {
+					setState(IDLE);
+					console.log('Error:', error);
+				}
+			}
+
+			async function encode(audioBlob) {
+				const arrayBuffer = await audioBlob.arrayBuffer();
+				const audioContext = new AudioContext();
+				const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+				return new Promise((resolve) => {
+					const worker = new Worker('/public/wav-worker.js');
+
+					worker.onmessage = function (e) {
+						const wavBlob = new Blob([e.data.buffer], { type: 'audio/wav' });
+						resolve(wavBlob);
+					};
+
+					let pcmArrays = [];
+					for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+						pcmArrays.push(audioBuffer.getChannelData(i));
+					}
+
+					worker.postMessage({ pcmArrays, config: { sampleRate: audioBuffer.sampleRate } });
+				});
+			}
+
+			async function sendAudio(audioBlob) {
+				const formData = new FormData();
+				formData.append('id', crypto.randomUUID());
+				formData.append('file', audioBlob);
+				formData.append('messages', JSON.stringify(messages));
+
+				const response = await fetch('http://localhost:3000/chat', {
+					method: 'POST',
+					body: formData
+				});
+				if (response.ok) {
+					const data = await response.json();
+					messages = data.messages;
+					console.log(messages);
+					audio = new Audio(data.answer);
+					audio.addEventListener('ended', () => {
+						setState(IDLE);
+					});
+					audio.play().catch((err) => console.log('Playback error:', err));
+					setState(SPEAKING);
+				}
+			}
+		</script>
+	</body>
+</html>
