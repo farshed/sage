@@ -1,15 +1,17 @@
-# yapper-bun
+# sage
 
-To install dependencies:
+Lightweight, local, voice chat with LLMs.
 
-```bash
-bun install
-```
+## Dependencies
 
-To run:
+-  [Rust](https://www.rust-lang.org/tools/install)
+-  [Bun](https://bun.sh)
+-  [Python](https://www.python.org/downloads) (optional)
 
-```bash
-bun run index.ts
-```
+## Run
 
-This project was created using `bun init` in bun v1.2.0. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Run `python setup.py`. This will download the required model weights and compile the binaries needed for Sage.
+
+Alternatively, you can manually download the [model weights]() and place them in the `models` directory in the project root. Then compile `kokoro` and `whisper` with `cargo build --release` in their respective directories.
+
+Start the project with `bun dev`. The UI is served at http://localhost:3000.

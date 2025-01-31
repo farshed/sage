@@ -2,6 +2,9 @@
 	"name": "sage",
 	"module": "index.ts",
 	"type": "module",
+	"scripts": {
+		"dev": "bun run index.ts"
+	},
 	"devDependencies": {
 		"@types/bun": "latest"
 	},
