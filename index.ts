@@ -1,7 +1,6 @@
 import { Elysia } from 'elysia';
 import { streamText } from 'ai';
-// import { deepseek } from '@ai-sdk/deepseek';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createTogetherAI } from '@ai-sdk/togetherai';
 import { spawn } from 'node:child_process';
 import fs from 'fs/promises';
 import { createWriteStream } from 'fs';
@@ -11,8 +10,8 @@ const KOKORO = './kokoro/target/release/koko';
 const WHISPER = './whisper/target/release/whisper';
 const TMP = './tmp';
 
-const openrouter = createOpenRouter({
-	apiKey: process.env.OPENROUTER_API_KEY
+const togetherai = createTogetherAI({
+	apiKey: process.env.TOGETHER_API_KEY
 });
 
 const app = new Elysia();
@@ -26,7 +25,9 @@ app.post('/chat', async ({ body }) => {
 
 	await Bun.write(`${TMP}/input/${id}.wav`, file);
 
+	const a = performance.now();
 	const transcript = await transcribe(id);
+	console.log(performance.now() - a);
 	console.log('Transcript: ', transcript);
 
 	const prompt = { role: 'user', content: transcript };
@@ -34,9 +35,8 @@ app.post('/chat', async ({ body }) => {
 	const messages = [...JSON.parse(history), prompt];
 
 	const { textStream } = await streamText({
-		// model: deepseek('deepseek-chat'),
-		model: openrouter('deepseek/deepseek-r1'),
-		system: 'Keep your responses short and succint',
+		model: togetherai('deepseek-ai/DeepSeek-V3'),
+		system: 'Respond with plain-text responses only. Keep your responses short and succint.',
 		messages
 	});
 
@@ -51,7 +51,7 @@ app.post('/chat', async ({ body }) => {
 	};
 });
 
-app.listen(3000);
+app.listen(3000, () => console.log('Listening at http://localhost:3000'));
 
 function transcribe(id: string): Promise<string> {
 	const whisperProcess = spawn(WHISPER, [id]);
