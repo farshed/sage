@@ -7,13 +7,14 @@
 		<script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 	</head>
 	<body>
-		<div class="flex items-center justify-center h-screen">
+		<div class="flex flex-col items-center justify-center h-screen">
 			<button
 				id="chatBtn"
-				class="relative w-24 h-24 text-4xl rounded-full bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 transition-colors duration-200"
+				class="relative w-24 h-24 text-5xl rounded-full bg-blue-500 hover:bg-blue-600 transition-colors duration-200 cursor-pointer"
 			>
 				🎙️
 			</button>
+			<p id="helperText" class="mt-6 text-center">Click to speak</p>
 		</div>
 
 		<script>
@@ -32,11 +33,25 @@
 				[SPEAKING]: '🗣️'
 			};
 
+			const helperTexts = {
+				[IDLE]: 'Click to speak',
+				[LISTENING]: 'Listening... <p>Click to finish</p>',
+				[LOADING]: 'Thinking...',
+				[SPEAKING]: 'Speaking... <p>Click to cancel</p>'
+			};
+
 			const chatBtn = document.getElementById('chatBtn');
+			const helperText = document.getElementById('helperText');
 
 			function setState(newState) {
 				chatState = newState;
 				chatBtn.innerText = stateIndicator[chatState];
+				helperText.innerHTML = helperTexts[chatState];
+				if (newState === SPEAKING) {
+					chatBtn.classList.add('hover:bg-red-500');
+				} else {
+					chatBtn.classList.remove('hover:bg-red-500');
+				}
 			}
 
 			chatBtn.addEventListener('click', () => {
@@ -47,7 +62,7 @@
 					chatState = LOADING;
 					mediaRecorder.stop();
 				} else if (chatState === LOADING) {
-					chatState = SPEAKING;
+					return;
 				} else if (chatState === SPEAKING) {
 					if (audio) audio.pause();
 					chatState = IDLE;
@@ -110,9 +125,13 @@
 				});
 				if (response.ok) {
 					const data = await response.json();
+					if (!data.audio && data.error) {
+						setState(IDLE);
+						return window.alert(data.error);
+					}
+
 					messages = data.messages;
-					console.log(messages);
-					audio = new Audio(data.answer);
+					audio = new Audio(data.audio);
 					audio.addEventListener('ended', () => {
 						setState(IDLE);
 					});

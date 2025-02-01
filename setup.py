@@ -4,7 +4,7 @@ import urllib.request
 MODELS_DIR = './models'
 FILES = [
     'https://hf-mirror.com/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx',
-    'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin',
+    'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin',
     
 ]
 

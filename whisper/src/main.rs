@@ -3,14 +3,13 @@ use std::fs::File;
 use std::io::{Result, Write};
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
 
-// Todo: optimize?
-// Speed up the audio
-// Cut blank parts out
-
-const MODEL_PATH: &'static str = "./models/ggml-base.en.bin";
+// Todo: optimize
+// Stream?
+// Quantize?
 
 fn main() {
-    let id = args().nth(1).expect("Please specify file id");
+    let model_path = args().nth(1).expect("Please specify model path");
+    let id = args().nth(2).expect("Please specify file id");
     let wav_path = format!("./tmp/input/{}.wav", id);
     let language = "en";
 
@@ -20,7 +19,7 @@ fn main() {
         .map(|x| x.unwrap())
         .collect();
 
-    let ctx = WhisperContext::new_with_params(&MODEL_PATH, WhisperContextParameters::default())
+    let ctx = WhisperContext::new_with_params(&model_path, WhisperContextParameters::default())
         .expect("failed to load model");
 
     let mut state = ctx.create_state().expect("failed to create state");

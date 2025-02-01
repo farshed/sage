@@ -4,10 +4,13 @@ import { createTogetherAI } from '@ai-sdk/togetherai';
 import { spawn } from 'node:child_process';
 import fs from 'fs/promises';
 import { createWriteStream, type WriteStream } from 'fs';
+import open from 'open';
 
 const KOKORO = './kokoro/target/release/koko';
 const WHISPER = './whisper/target/release/whisper';
 const TMP = './tmp';
+
+const WHISPER_MODEL = './models/ggml-medium.en.bin';
 
 const togetherai = createTogetherAI({
 	apiKey: process.env.TOGETHER_API_KEY
@@ -21,6 +24,7 @@ app.get('/play/:filename', ({ params }) => Bun.file(`./tmp/output/${params.filen
 
 app.post('/chat', async ({ body }) => {
 	const { id, file, messages: history } = body as any;
+	const prevMessages = JSON.parse(history);
 
 	await Bun.write(`${TMP}/input/${id}.wav`, file);
 
@@ -29,36 +33,40 @@ app.post('/chat', async ({ body }) => {
 	console.log(performance.now() - a);
 	console.log('Transcript: ', transcript);
 
-	const prompt = { role: 'user', content: transcript };
+	if (!transcript) {
+		return { messages: prevMessages, error: 'No speech was detected!' };
+	}
 
-	const messages = [...JSON.parse(history), prompt];
+	const prompt = { role: 'user', content: transcript };
+	const messages = [...prevMessages, prompt];
 
 	const { textStream } = await streamText({
 		model: togetherai('deepseek-ai/DeepSeek-V3'),
-		system: 'Respond with plain-text responses only. Keep your responses short and succint.',
+		system: 'Respond in plain-text only. Keep your responses short and succint.',
 		messages
 	});
 
 	const ttsStream = new TTSStream(id);
 	const message = await processTextStream(textStream, ttsStream);
-
 	console.log('Response: ', message);
 
 	return {
-		answer: `/play/${id}.wav`,
+		audio: `/play/${id}.wav`,
 		messages: [...messages, { role: 'assistant', content: message }]
 	};
 });
 
-app.listen(3000, () => console.log('Listening at http://localhost:3000'));
+app.listen(3000, () => {
+	open('http://localhost:3000').catch(() => {});
+});
 
 function transcribe(id: string): Promise<string> {
-	const whisperProcess = spawn(WHISPER, [id]);
+	const whisperProcess = spawn(WHISPER, [WHISPER_MODEL, id]);
 
 	return new Promise((resolve, reject) => {
 		whisperProcess.stdout.on('end', () => {
 			fs.readFile(`${TMP}/transcripts/${id}.txt`)
-				.then((buffer) => resolve(buffer.toString().trim()))
+				.then((buffer) => resolve(cleanTranscript(buffer.toString())))
 				.catch(reject);
 		});
 	});
@@ -73,13 +81,8 @@ class TTSStream {
 		this.path = `${TMP}/output/${id}.wav`;
 		this.output = createWriteStream(this.path);
 
-		this.kokoroProcess.stdout.on('data', (chunk) => {
-			this.output.write(chunk);
-		});
-
-		this.kokoroProcess.stdout.on('end', () => {
-			this.output.end();
-		});
+		this.kokoroProcess.stdout.on('data', (chunk) => this.output.write(chunk));
+		// this.kokoroProcess.stdout.on('end', () => this.output.end());
 	}
 
 	write(input: string) {
@@ -87,7 +90,13 @@ class TTSStream {
 	}
 
 	close() {
-		this.kokoroProcess.stdin.end();
+		return new Promise((resolve) => {
+			this.kokoroProcess.stdout.on('end', () => {
+				this.output.end();
+				resolve(undefined);
+			});
+			this.kokoroProcess.stdin.end();
+		});
 	}
 }
 
@@ -99,8 +108,7 @@ async function processTextStream(textStream: AsyncIterable<string>, ttsStream: T
 		buffer += textChunk;
 		message += textChunk;
 
-		const sentenceEndRegex = /[.!?]\s/;
-		const sentenceEndIdx = buffer.search(sentenceEndRegex);
+		const sentenceEndIdx = buffer.search(/[.!?]\s/);
 		if (sentenceEndIdx !== -1) {
 			const sentence = buffer
 				.slice(0, sentenceEndIdx + 1)
@@ -114,7 +122,14 @@ async function processTextStream(textStream: AsyncIterable<string>, ttsStream: T
 	if (buffer.trim()) {
 		ttsStream.write(buffer.trim() + '\n');
 	}
-	ttsStream.close();
+	await ttsStream.close();
 
 	return message;
+}
+
+function cleanTranscript(input: string) {
+	return input
+		.replace(/\[.*?\]/g, '')
+		.trim()
+		.replace(/\s+/g, ' ');
 }
