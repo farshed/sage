@@ -11,5 +11,9 @@ Local, lightweight voice chat with LLMs.
 ## Run
 
 1. Run `python setup.py` in the project root. This will download the required model weights and compile the binaries needed for Sage.
-2. Place a .env file containing TOGETHER_API_KEY in the project root directory.
+2. Place a .env file containing `TOGETHER_API_KEY` in the project root directory.
 3. Start the project with `bun dev`.
+
+## Pipeline
+
+🗣️ -> Speech -> Whisper.cpp -> transcript -> LLM -> text response -> Kokoro v0.19 -> vocal response

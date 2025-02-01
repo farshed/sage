@@ -28,10 +28,10 @@ app.post('/chat', async ({ body }) => {
 
 	await Bun.write(`${TMP}/input/${id}.wav`, file);
 
-	const a = performance.now();
+	const tscInit = performance.now();
 	const transcript = await transcribe(id);
-	console.log(performance.now() - a);
-	console.log('Transcript: ', transcript);
+	const tscTook = Math.round(performance.now() - tscInit);
+	console.log(`[took ${tscTook}ms]`, 'Transcript: ', transcript);
 
 	if (!transcript) {
 		return { messages: prevMessages, error: 'No speech was detected!' };
@@ -84,7 +84,6 @@ class TTSStream {
 		this.output = createWriteStream(this.path);
 
 		this.kokoroProcess.stdout.on('data', (chunk) => this.output.write(chunk));
-		// this.kokoroProcess.stdout.on('end', () => this.output.end());
 	}
 
 	write(input: string) {
