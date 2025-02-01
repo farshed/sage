@@ -9,6 +9,7 @@ FILES = [
 ]
 
 # create tmp dirs
+# compile binaries
 
 def download_files():
     if not os.path.exists(MODELS_DIR):

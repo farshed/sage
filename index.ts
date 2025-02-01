@@ -57,7 +57,9 @@ app.post('/chat', async ({ body }) => {
 });
 
 app.listen(3000, () => {
-	open('http://localhost:3000').catch(() => {});
+	open('http://localhost:3000').catch(() =>
+		console.log('Navigate to http://localhost:3000 in your browser')
+	);
 });
 
 function transcribe(id: string): Promise<string> {
