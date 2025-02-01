@@ -3,8 +3,7 @@ import { streamText } from 'ai';
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { spawn } from 'node:child_process';
 import fs from 'fs/promises';
-import { createWriteStream } from 'fs';
-import type { WriteStream } from 'node:fs';
+import { createWriteStream, type WriteStream } from 'fs';
 
 const KOKORO = './kokoro/target/release/koko';
 const WHISPER = './whisper/target/release/whisper';
