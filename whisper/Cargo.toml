@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 hound = "3.5.0"
-whisper-rs = "0.13.2"
+whisper-rs = { version ="0.13.2", features = ["coreml"] }
