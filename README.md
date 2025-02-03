@@ -18,13 +18,13 @@ Converse with large language models using speech. Local, lightweight, and open-s
 
 -  **Among the third-party providers**, Sage supports the following out of the box:
 
-1. Deepseek
-2. Anthropic
-3. OpenAI
-4. Together.ai
+  1. Deepseek
+  2. Anthropic
+  3. OpenAI
+  4. Together.ai
 
-To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
-To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
+  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
+  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
 
 3. Start the project with `bun dev`.
 
