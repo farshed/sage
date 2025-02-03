@@ -27,6 +27,8 @@ def download_files():
             print(f"Error downloading {url}: {e}")
 
 def compile_rust_project(project_path):
+    print(f'Attempting to build {project_path}')
+    
     try:
         if not os.path.isdir(project_path):
             print(f"Error: Project not found at '{project_path}'")
@@ -34,8 +36,7 @@ def compile_rust_project(project_path):
 
         result = subprocess.run(['cargo', 'build', '--release'], cwd=project_path, capture_output=True, text=True, check=True)
         
-        print("Build successful.")
-        print(result.stdout)
+        print(f"{project_path} build successful")
     except subprocess.CalledProcessError as e:
         print(f"Build failed for {project_path}: {e}. Make sure you have rust installed.")
         print(e.stderr) 
