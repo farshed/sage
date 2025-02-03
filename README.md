@@ -33,5 +33,3 @@ Converse with large language models using speech. Local, lightweight, and open-s
 1. Optimize the pipeline.
 2. Make it easier to run. (Dockerize?)
 3. Release as a library?
-
-Among the latter, only [together.ai](https://www.together.ai) is currently supported out of the box. It provides $1 in free credit which is good for ~800k tokens of Deepseek V3 usage. \[I'm not affiliated]
