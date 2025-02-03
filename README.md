@@ -1,13 +1,12 @@
 # sage
 
-Local, lightweight voice chat with LLMs.
+Converse with large language models using speech. Local, lightweight, and open-source.
 
-## Components
+## Models
 
--  Whisper.cpp for ASR
--  Deepseek V3 for text gen
--  Kokoro v0.19 for speech gen
--  Bun & Elysia to tie all the pieces together
+-  [Whisper.cpp](https://github.com/ggerganov/whisper.cpp)
+-  Deepseek V3
+-  [Kokoro v0.19](https://huggingface.co/hexgrad/Kokoro-82M)
 
 ## Requirements
 
