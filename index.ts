@@ -62,15 +62,17 @@ app.listen(3000, () => {
 });
 
 function getLLMProvider() {
-	if (process.env.OLLAMA_MODEL) {
-		return ollama(process.env.OLLAMA_MODEL);
+	const { OLLAMA_MODEL, TOGETHER_API_KEY, TOGETHER_MODEL } = process.env;
+
+	if (OLLAMA_MODEL) {
+		return ollama(OLLAMA_MODEL);
 	}
 
-	if (process.env.TOGETHER_API_KEY) {
+	if (TOGETHER_API_KEY) {
 		const togetherai = createTogetherAI({
-			apiKey: process.env.TOGETHER_API_KEY
+			apiKey: TOGETHER_API_KEY
 		});
-		return togetherai(process.env.TOGETHER_MODEL || 'deepseek-ai/DeepSeek-V3');
+		return togetherai(TOGETHER_MODEL || 'deepseek-ai/DeepSeek-V3');
 	}
 
 	throw new Error(
