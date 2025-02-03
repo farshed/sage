@@ -12,11 +12,19 @@ Converse with large language models using speech. Local, lightweight, and open-s
 
 1. Run `setup-unix.sh` or `setup-win.bat` depending on your platform. This will download the required model weights and compile the binaries needed for Sage.
 
-2. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider. Among the latter, only [together.ai](https://www.together.ai) is currently supported out of the box. It provides $1 in free credit which is good for ~800k tokens of Deepseek V3 usage. \[I'm not affiliated]
+2. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider.
 
--  **If you're using Ollama**, add an `OLLAMA_MODEL` variable to the .env file. (Example: `OLLAMA_MODEL=deepseek-r1:671b`)
+-  **If you're using Ollama**, add an `OLLAMA_MODEL` variable to the .env file to specify the model you're hosting. (Example: `OLLAMA_MODEL=deepseek-r1:671b`)
 
--  **If you're using together.ai**, add `TOGETHER_API_KEY` variable to the .env file. (API keys can be obtained at https://api.together.ai). The model defaults to Deepseek V3 but can be changed using the `TOGETHER_MODEL` variable.
+-  **Among the third-party providers**, Sage supports the following out of the box:
+
+1. Deepseek
+2. Anthropic
+3. OpenAI
+4. Together.ai
+
+To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
+To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
 
 3. Start the project with `bun dev`.
 
@@ -25,3 +33,5 @@ Converse with large language models using speech. Local, lightweight, and open-s
 1. Optimize the pipeline.
 2. Make it easier to run. (Dockerize?)
 3. Release as a library?
+
+Among the latter, only [together.ai](https://www.together.ai) is currently supported out of the box. It provides $1 in free credit which is good for ~800k tokens of Deepseek V3 usage. \[I'm not affiliated]

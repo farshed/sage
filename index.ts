@@ -1,6 +1,9 @@
 import { Elysia } from 'elysia';
 import { streamText } from 'ai';
 import { ollama } from 'ollama-ai-provider';
+import { openai } from '@ai-sdk/openai';
+import { deepseek } from '@ai-sdk/deepseek';
+import { anthropic } from '@ai-sdk/anthropic';
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import fs from 'fs/promises';
 import { spawn } from 'node:child_process';
@@ -62,11 +65,22 @@ app.listen(3000, () => {
 });
 
 function getLLMProvider() {
-	const { OLLAMA_MODEL, TOGETHER_API_KEY, TOGETHER_MODEL } = process.env;
+	const {
+		OLLAMA_MODEL,
+		OPENAI_API_KEY,
+		OPENAI_MODEL,
+		DEEPSEEK_API_KEY,
+		DEEPSEEK_MODEL,
+		ANTHROPIC_API_KEY,
+		ANTHROPIC_MODEL,
+		TOGETHER_API_KEY,
+		TOGETHER_MODEL
+	} = process.env;
 
-	if (OLLAMA_MODEL) {
-		return ollama(OLLAMA_MODEL);
-	}
+	if (OLLAMA_MODEL) return ollama(OLLAMA_MODEL);
+	if (DEEPSEEK_API_KEY) return deepseek(DEEPSEEK_MODEL || 'deepseek-chat');
+	if (ANTHROPIC_API_KEY) return anthropic(ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022');
+	if (OPENAI_API_KEY) return openai(OPENAI_MODEL || 'gpt-4-turbo');
 
 	if (TOGETHER_API_KEY) {
 		const togetherai = createTogetherAI({
