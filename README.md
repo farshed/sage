@@ -14,7 +14,7 @@ Converse with large language models using speech. Local, lightweight, and open-s
 
 2. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider.
 
--  **If you're using Ollama**, add an `OLLAMA_MODEL` variable to the .env file to specify the model you're hosting. (Example: `OLLAMA_MODEL=deepseek-r1:671b`)
+-  **If you're using Ollama**, add an `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:671b`)
 
 -  **Among the third-party providers**, Sage supports the following out of the box:
 
@@ -23,8 +23,8 @@ Converse with large language models using speech. Local, lightweight, and open-s
    3. OpenAI
    4. Together.ai
 
-   -  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
-   -  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
+-  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
+-  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
 
 3. Start the project with `bun dev`.
 
