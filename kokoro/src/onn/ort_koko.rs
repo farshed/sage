@@ -36,7 +36,13 @@ impl OrtKoko {
         // inference koko
         // token, styles, speed
         // 1,N 1,256
-        // [[0, 56, 51, 142, 156, 69, 63, 3, 16, 61, 4, 16, 156, 51, 4, 16, 62, 77, 156, 51, 86, 5, 0]]
+
+        let mut tokens = tokens;
+        let mut first_entry = tokens[0].clone();
+        for _ in 0..3 {
+            first_entry.insert(0, 30);
+        }
+        tokens[0] = first_entry;
 
         let shape = [tokens.len(), tokens[0].len()];
         let tokens_flat: Vec<i64> = tokens.into_iter().flatten().collect();

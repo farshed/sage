@@ -14,7 +14,9 @@ Converse with large language models using speech. Local, lightweight, and open-s
 
 2. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider.
 
--  **If you're using Ollama**, add an `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:671b`)
+-  **If you're using Ollama**, specify the model you'd like to use by adding the `OLLAMA_MODEL` variable to the .env file.
+
+add an `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:671b`)
 
 -  **Among the third-party providers**, Sage supports the following out of the box:
 

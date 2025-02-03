@@ -89,9 +89,10 @@ function getLLMProvider() {
 		return togetherai(TOGETHER_MODEL || 'deepseek-ai/DeepSeek-V3');
 	}
 
-	throw new Error(
-		'Environment variable OLLAMA_MODEL and TOGETHER_API_KEY not found. You need to specify one.'
+	console.error(
+		'No environment variables found! Specify at least one of OLLAMA_MODEL or <PROVIDER>_API_KEY. Refer to the project README for more details.'
 	);
+	process.exit(1);
 }
 
 function transcribe(id: string): Promise<string> {
