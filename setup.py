@@ -11,8 +11,8 @@ def create_dirs():
 
 FILES = [
     'https://hf-mirror.com/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx',
-    'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin',
-    
+    'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.en.bin',
+    'https://github.com/farshed/sage/releases/download/voices.json_v0.1/voices.json'
 ]
 
 def download_files():
@@ -37,7 +37,7 @@ def compile_rust_project(project_path):
         print("Build successful.")
         print(result.stdout)
     except subprocess.CalledProcessError as e:
-        print(f"Build failed: {e}. Check if you have rust installed.")
+        print(f"Build failed for {project_path}: {e}. Make sure you have rust installed.")
         print(e.stderr) 
 
 create_dirs()
