@@ -1,8 +1,9 @@
 import { Elysia } from 'elysia';
 import { streamText } from 'ai';
+import { ollama } from 'ollama-ai-provider';
 import { createTogetherAI } from '@ai-sdk/togetherai';
-import { spawn } from 'node:child_process';
 import fs from 'fs/promises';
+import { spawn } from 'node:child_process';
 import { createWriteStream, type WriteStream } from 'fs';
 import open from 'open';
 
@@ -12,9 +13,7 @@ const TMP = './tmp';
 
 const WHISPER_MODEL = './models/ggml-medium.en.bin';
 
-const togetherai = createTogetherAI({
-	apiKey: process.env.TOGETHER_API_KEY
-});
+const provider = getLLMProvider();
 
 const app = new Elysia();
 
@@ -41,7 +40,7 @@ app.post('/chat', async ({ body }) => {
 	const messages = [...prevMessages, prompt];
 
 	const { textStream } = await streamText({
-		model: togetherai('deepseek-ai/DeepSeek-V3'),
+		model: provider,
 		system: 'Respond in plain-text only. Keep your responses short and succint.',
 		messages
 	});
@@ -61,6 +60,23 @@ app.listen(3000, () => {
 		console.log('Navigate to http://localhost:3000 in your browser')
 	);
 });
+
+function getLLMProvider() {
+	if (process.env.OLLAMA_MODEL) {
+		return ollama(process.env.OLLAMA_MODEL);
+	}
+
+	if (process.env.TOGETHER_API_KEY) {
+		const togetherai = createTogetherAI({
+			apiKey: process.env.TOGETHER_API_KEY
+		});
+		return togetherai(process.env.TOGETHER_MODEL || 'deepseek-ai/DeepSeek-V3');
+	}
+
+	throw new Error(
+		'Environment variable OLLAMA_MODEL and TOGETHER_API_KEY not found. You need to specify one.'
+	);
+}
 
 function transcribe(id: string): Promise<string> {
 	const whisperProcess = spawn(WHISPER, [WHISPER_MODEL, id]);

@@ -16,6 +16,7 @@
 		"@ai-sdk/togetherai": "^0.1.8",
 		"ai": "^4.1.9",
 		"elysia": "^1.2.10",
+		"ollama-ai-provider": "^1.2.0",
 		"open": "^10.1.0"
 	}
 }

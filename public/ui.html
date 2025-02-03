@@ -47,11 +47,7 @@
 				chatState = newState;
 				chatBtn.innerText = stateIndicator[chatState];
 				helperText.innerHTML = helperTexts[chatState];
-				if (newState === SPEAKING) {
-					chatBtn.classList.add('hover:bg-red-500');
-				} else {
-					chatBtn.classList.remove('hover:bg-red-500');
-				}
+				chatBtn.classList.toggle('hover:bg-red-500', newState === SPEAKING);
 			}
 
 			chatBtn.addEventListener('click', () => {
