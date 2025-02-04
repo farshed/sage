@@ -2,6 +2,17 @@
 
 Converse with large language models using speech. Local, lightweight, and open-source.
 
+# How it works
+
+Sage uses state-of-the-art open-source speech processing models. Here's an overview of its architecture.
+
+![Sage Architecture](/assets/architecture.png)
+
+<picture>
+   <source media="(prefers-color-scheme: dark)" srcset="/assets/architecture-dark.png">
+   <source media="(prefers-color-scheme: light)" srcset="/assets/architecture-light.png">
+</picture>
+
 ## Requirements
 
 -  [Rust](https://www.rust-lang.org/tools/install)
@@ -19,8 +30,8 @@ Converse with large language models using speech. Local, lightweight, and open-s
 -  **Among the third-party providers**, Sage supports the following out of the box:
 
    1. Deepseek
-   2. Anthropic
-   3. OpenAI
+   2. OpenAI
+   3. Anthropic
    4. Together.ai
 
 -  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)

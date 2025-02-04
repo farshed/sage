@@ -10,9 +10,6 @@ use clap::Parser;
 use tts::koko::TTSKoko;
 
 #[derive(Parser, Debug)]
-#[command(name = "kokoros")]
-#[command(version = "0.1")]
-#[command(author = "Lucas Jin")]
 struct Cli {
     #[arg(short = 't', long = "text", value_name = "TEXT")]
     text: Option<String>,
