@@ -13,7 +13,7 @@ mkdir tmp\input tmp\output tmp\transcripts
 echo Downloading models...
 cd models
 curl -O https://hf-mirror.com/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx
-curl -O https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-medium.en.bin
+curl -O https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin
 curl -O https://github.com/farshed/sage/releases/download/voices.json_v0.1/voices.json
 
 :: compile whisper and kokoro

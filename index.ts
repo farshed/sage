@@ -6,51 +6,44 @@ import { deepseek } from '@ai-sdk/deepseek';
 import { anthropic } from '@ai-sdk/anthropic';
 import { togetherai } from '@ai-sdk/togetherai';
 import fs from 'fs/promises';
-import { spawn } from 'node:child_process';
 import { createWriteStream, type WriteStream } from 'fs';
+import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import open from 'open';
 
-const KOKORO = './kokoro/target/release/koko';
-const WHISPER = './whisper/target/release/whisper';
-const TMP = './tmp';
-
-const WHISPER_MODEL = './models/ggml-medium.en.bin';
+const CONFIG = {
+	TMP: './tmp',
+	KOKORO: './kokoro/target/release/koko',
+	WHISPER: './whisper/target/release/whisper',
+	WHISPER_MODEL: './models/ggml-large-v3-turbo.bin',
+	SYSTEM_PROMPT: `Respond in plain-text only. Keep your responses short and succinct. Ignore any unusual endings like "Bye!" and "Thank you!". Provide a response that is written to be read exactly and literally as it is written. For example, instead of writing '$10-50 million', write '10 to 50 million dollars'. Avoid using symbols or abbreviations that might be misinterpreted when read literally.`
+};
 
 const provider = getLLMProvider();
-
 const app = new Elysia();
 
 app.get('/', Bun.file('./public/ui.html'));
-app.get('/public/:filename', ({ params }) => Bun.file(`./public/${params.filename}`));
-app.get('/play/:filename', ({ params }) => Bun.file(`./tmp/output/${params.filename}`));
+app.get('/public/:file', ({ params }) => Bun.file(`./public/${params.file}`));
+app.get('/play/:file', ({ params }) => Bun.file(`${CONFIG.TMP}/output/${params.file}`));
 
 app.post('/chat', async ({ body }) => {
 	const { id, file, messages: history } = body as any;
 	const prevMessages = JSON.parse(history);
 
-	await Bun.write(`${TMP}/input/${id}.wav`, file);
+	await Bun.write(`${CONFIG.TMP}/input/${id}.wav`, file);
+	const transcript = await time(() => transcribe(id), 'Transcription');
+	console.log(`${id}:`, transcript);
 
-	const tscInit = performance.now();
-	const transcript = await transcribe(id);
-	const tscTook = Math.round(performance.now() - tscInit);
-	console.log(`[took ${tscTook}ms]`, 'Transcript: ', transcript);
+	if (!transcript) return { messages: prevMessages, error: 'No speech detected!' };
 
-	if (!transcript) {
-		return { messages: prevMessages, error: 'No speech was detected!' };
-	}
-
-	const prompt = { role: 'user', content: transcript };
-	const messages = [...prevMessages, prompt];
-
+	const messages = [...prevMessages, { role: 'user', content: transcript }];
 	const { textStream } = await streamText({
 		model: provider,
-		system: 'Respond in plain-text only. Keep your responses short and succint.',
+		system: CONFIG.SYSTEM_PROMPT,
 		messages
 	});
 
 	const ttsStream = new TTSStream(id);
-	const message = await processTextStream(textStream, ttsStream);
-	console.log('Response: ', message);
+	const message = await time(() => processTextStream(textStream, ttsStream), 'TextGen & TTS');
 
 	return {
 		audio: `/play/${id}.wav`,
@@ -59,43 +52,30 @@ app.post('/chat', async ({ body }) => {
 });
 
 app.listen(3000, () => {
-	open('http://localhost:3000').catch(() =>
-		console.log('Navigate to http://localhost:3000 in your browser')
-	);
+	open('http://localhost:3000').catch(() => console.log('Open http://localhost:3000 in browser'));
 });
 
 function getLLMProvider() {
-	const {
-		OLLAMA_MODEL,
-		OPENAI_API_KEY,
-		OPENAI_MODEL,
-		DEEPSEEK_API_KEY,
-		DEEPSEEK_MODEL,
-		ANTHROPIC_API_KEY,
-		ANTHROPIC_MODEL,
-		TOGETHER_AI_API_KEY,
-		TOGETHER_AI_MODEL
-	} = process.env;
-
-	if (OLLAMA_MODEL) return ollama(OLLAMA_MODEL);
-	if (DEEPSEEK_API_KEY) return deepseek(DEEPSEEK_MODEL || 'deepseek-chat');
-	if (ANTHROPIC_API_KEY) return anthropic(ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022');
-	if (OPENAI_API_KEY) return openai(OPENAI_MODEL || 'gpt-4-turbo');
-	if (TOGETHER_AI_API_KEY) return togetherai(TOGETHER_AI_MODEL || 'deepseek-ai/DeepSeek-V3');
+	const env = process.env;
+	if (env.OLLAMA_MODEL) return ollama(env.OLLAMA_MODEL);
+	if (env.DEEPSEEK_API_KEY) return deepseek(env.DEEPSEEK_MODEL || 'deepseek-chat');
+	if (env.ANTHROPIC_API_KEY) return anthropic(env.ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022');
+	if (env.OPENAI_API_KEY) return openai(env.OPENAI_MODEL || 'gpt-4-turbo');
+	if (env.TOGETHER_AI_API_KEY)
+		return togetherai(env.TOGETHER_AI_MODEL || 'deepseek-ai/DeepSeek-V3');
 
 	console.error(
-		'No environment variables found! Specify at least one of OLLAMA_MODEL or <PROVIDER>_API_KEY. Refer to the project README for more details.'
+		'No valid LLM provider found! Set at least one of OLLAMA_MODEL or <PROVIDER>_API_KEY.'
 	);
 	process.exit(1);
 }
 
 function transcribe(id: string): Promise<string> {
-	const whisperProcess = spawn(WHISPER, [WHISPER_MODEL, id]);
-
 	return new Promise((resolve, reject) => {
+		const whisperProcess = spawn(CONFIG.WHISPER, [CONFIG.WHISPER_MODEL, id]);
 		whisperProcess.stdout.on('end', () => {
-			fs.readFile(`${TMP}/transcripts/${id}.txt`)
-				.then((buffer) => resolve(cleanTranscript(buffer.toString())))
+			fs.readFile(`${CONFIG.TMP}/transcripts/${id}.txt`, 'utf-8')
+				.then((tsc) => resolve(cleanTranscript(tsc)))
 				.catch(reject);
 		});
 	});
@@ -104,13 +84,13 @@ function transcribe(id: string): Promise<string> {
 class TTSStream {
 	path: string;
 	output: WriteStream;
-	kokoroProcess = spawn(KOKORO, ['--stream'], { stdio: 'pipe' });
+	kokoroProcess: ChildProcessWithoutNullStreams;
 
 	constructor(id: string) {
-		this.path = `${TMP}/output/${id}.wav`;
+		this.path = `${CONFIG.TMP}/output/${id}.wav`;
 		this.output = createWriteStream(this.path);
-
-		this.kokoroProcess.stdout.on('data', (chunk) => this.output.write(chunk));
+		this.kokoroProcess = spawn(CONFIG.KOKORO, ['--stream'], { stdio: 'pipe' });
+		this.kokoroProcess.stdout.pipe(this.output);
 	}
 
 	write(input: string) {
@@ -132,27 +112,27 @@ async function processTextStream(textStream: AsyncIterable<string>, ttsStream: T
 	let buffer = '';
 	let message = '';
 
-	for await (const textChunk of textStream) {
-		buffer += textChunk;
-		message += textChunk;
+	for await (const chunk of textStream) {
+		buffer += chunk;
+		message += chunk;
 
-		const sentenceEndIdx = buffer.search(/[.!?]\s/);
-		if (sentenceEndIdx !== -1) {
-			const sentence = buffer
-				.slice(0, sentenceEndIdx + 1)
-				.trim()
-				.replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1');
-			buffer = buffer.slice(sentenceEndIdx + 1).trim();
-			ttsStream.write(sentence + '\n');
+		const match = buffer.match(/.*?[.!?](\s|$)/);
+		if (match) {
+			ttsStream.write(match[0].trim());
+			buffer = buffer.slice(match[0].length).trim();
 		}
 	}
-
-	if (buffer.trim()) {
-		ttsStream.write(buffer.trim() + '\n');
-	}
+	if (buffer) ttsStream.write(buffer.trim());
 	await ttsStream.close();
-
 	return message;
+}
+
+async function time(fn: Function, label: string) {
+	const start = performance.now();
+	const result = await fn();
+	const duration = Math.round(performance.now() - start);
+	console.log(`[${label} took ${duration}ms]`);
+	return result;
 }
 
 function cleanTranscript(input: string) {

@@ -1,6 +1,6 @@
 # Sage
 
-Converse with large language models using speech. Local, lightweight, and open-source.
+Converse with large language models using speech. Lightweight, local, and open-source.
 
 ## How it works
 
@@ -26,7 +26,7 @@ Sage uses state-of-the-art open-source speech processing models. Here's an overv
 
 2. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider.
 
--  **If you're using Ollama**, add the `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:671b`)
+-  **If you're using Ollama**, add the `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:7b`)
 
 -  **Among the third-party providers**, Sage supports the following out of the box:
 
@@ -38,7 +38,7 @@ Sage uses state-of-the-art open-source speech processing models. Here's an overv
 -  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
 -  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
 
-3. Start the project with `bun start`.
+3. Start the project with `bun start`. The first run on macOS is slow (~20 minutes on M1 Pro), since the ANE service compiles the Whisper CoreML model to a device-specific format. Next runs are faster.
 
 ## Future work
 
