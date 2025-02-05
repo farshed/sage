@@ -1,12 +1,13 @@
 # Sage
 
-Converse with large language models using speech. Lightweight, local, and open-source.
+Converse with large language models using speech.
+
+-  **Open**: Powered by state-of-the-art open-source speech processing models.
+-  **Efficient**: Runs on consumer hardware with low latency.
+-  **Self-hosted**: Entire pipeline runs offline, limited only by compute power.
+-  **Modular**: Switching LLM providers is as simple as changing an environment variable.
 
 ## How it works
-
-Sage uses state-of-the-art open-source speech processing models. Here's an overview of its pipeline.
-
-<br/>
 
 <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
