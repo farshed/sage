@@ -7,9 +7,9 @@ Converse with large language models using speech. Local, lightweight, and open-s
 Sage uses state-of-the-art open-source speech processing models. Here's an overview of its architecture.
 
 <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/farshed/sage/refs/heads/main/assets/architecture-dark.png">
-   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/farshed/sage/refs/heads/main/assets/architecture-light.png">
-   <img alt="Sage architecture" src="https://raw.githubusercontent.com/farshed/sage/refs/heads/main/assets/architecture-dark.png">
+   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-light.png?raw=true">
+   <img alt="Sage architecture" src="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
 </picture>
 
 ## Requirements
