@@ -12,9 +12,9 @@ Converse with large language models using speech.
 <br/>
 
 <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-light.png?raw=true">
-   <img alt="Sage architecture" src="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
+   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-dark-2.png?raw=true">
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-light-2.png?raw=true">
+   <img alt="Sage architecture" src="https://github.com/farshed/sage/blob/main/assets/architecture-dark-2.png?raw=true">
 </picture>
 
 ## Requirements
