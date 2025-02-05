@@ -4,7 +4,7 @@ Converse with large language models using speech. Local, lightweight, and open-s
 
 # How it works
 
-Sage uses state-of-the-art open-source speech processing models. Here's an overview of its architecture.
+Sage uses state-of-the-art open-source speech processing models. Here's an overview of its pipeline's architecture:
 
 <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">

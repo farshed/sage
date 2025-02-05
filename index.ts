@@ -4,7 +4,7 @@ import { ollama } from 'ollama-ai-provider';
 import { openai } from '@ai-sdk/openai';
 import { deepseek } from '@ai-sdk/deepseek';
 import { anthropic } from '@ai-sdk/anthropic';
-import { createTogetherAI } from '@ai-sdk/togetherai';
+import { togetherai } from '@ai-sdk/togetherai';
 import fs from 'fs/promises';
 import { spawn } from 'node:child_process';
 import { createWriteStream, type WriteStream } from 'fs';
@@ -73,21 +73,15 @@ function getLLMProvider() {
 		DEEPSEEK_MODEL,
 		ANTHROPIC_API_KEY,
 		ANTHROPIC_MODEL,
-		TOGETHER_API_KEY,
-		TOGETHER_MODEL
+		TOGETHER_AI_API_KEY,
+		TOGETHER_AI_MODEL
 	} = process.env;
 
 	if (OLLAMA_MODEL) return ollama(OLLAMA_MODEL);
 	if (DEEPSEEK_API_KEY) return deepseek(DEEPSEEK_MODEL || 'deepseek-chat');
 	if (ANTHROPIC_API_KEY) return anthropic(ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022');
 	if (OPENAI_API_KEY) return openai(OPENAI_MODEL || 'gpt-4-turbo');
-
-	if (TOGETHER_API_KEY) {
-		const togetherai = createTogetherAI({
-			apiKey: TOGETHER_API_KEY
-		});
-		return togetherai(TOGETHER_MODEL || 'deepseek-ai/DeepSeek-V3');
-	}
+	if (TOGETHER_AI_API_KEY) return togetherai(TOGETHER_AI_MODEL || 'deepseek-ai/DeepSeek-V3');
 
 	console.error(
 		'No environment variables found! Specify at least one of OLLAMA_MODEL or <PROVIDER>_API_KEY. Refer to the project README for more details.'
