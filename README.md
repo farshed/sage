@@ -9,8 +9,9 @@ Sage uses state-of-the-art open-source speech processing models. Here's an overv
 ![Sage Architecture](/assets/architecture.png)
 
 <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="/assets/architecture-dark.png">
-   <source media="(prefers-color-scheme: light)" srcset="/assets/architecture-light.png">
+   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/farshed/sage/refs/heads/main/assets/architecture-dark.png">
+   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/farshed/sage/refs/heads/main/assets/architecture-light.png">
+   <img alt="Sage architecture" src="https://raw.githubusercontent.com/farshed/sage/refs/heads/main/assets/architecture-dark.png">
 </picture>
 
 ## Requirements
