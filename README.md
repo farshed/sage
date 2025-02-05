@@ -2,9 +2,11 @@
 
 Converse with large language models using speech. Local, lightweight, and open-source.
 
-# How it works
+## How it works
 
-Sage uses state-of-the-art open-source speech processing models. Here's an overview of its pipeline's architecture:
+Sage uses state-of-the-art open-source speech processing models. Here's an overview of its pipeline.
+
+<br/>
 
 <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
@@ -14,8 +16,8 @@ Sage uses state-of-the-art open-source speech processing models. Here's an overv
 
 ## Requirements
 
--  [Rust](https://www.rust-lang.org/tools/install)
 -  [Bun](https://bun.sh)
+-  [Rust](https://www.rust-lang.org/tools/install)
 -  [Ollama](https://ollama.com) (Alternatively, you can use a third-party provider)
 
 ## Run
