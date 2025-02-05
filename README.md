@@ -38,7 +38,7 @@ Sage uses state-of-the-art open-source speech processing models. Here's an overv
 -  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
 -  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
 
-3. Start the project with `bun dev`.
+3. Start the project with `bun start`.
 
 ## Future work
 

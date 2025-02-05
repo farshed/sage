@@ -3,7 +3,7 @@
 	"module": "index.ts",
 	"type": "module",
 	"scripts": {
-		"dev": "bun run index.ts",
+		"start": "bun run index.ts",
 		"clean": "find ./tmp -type f -delete"
 	},
 	"devDependencies": {

@@ -5,4 +5,9 @@ edition = "2021"
 
 [dependencies]
 hound = "3.5.0"
+
+[target.'cfg(target_os = "macos")'.dependencies]
 whisper-rs = { version ="0.13.2", features = ["coreml"] }
+
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+whisper-rs = { version ="0.13.2" }
