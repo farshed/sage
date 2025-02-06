@@ -8,6 +8,9 @@ echo. > .env
 mkdir models tmp
 mkdir tmp\input tmp\output tmp\transcripts
 
+:: install deps
+bun install
+
 :: download models
 
 echo Downloading models...
