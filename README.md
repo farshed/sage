@@ -3,7 +3,7 @@
 Converse with large language models using speech.
 
 -  **Open**: Powered by state-of-the-art open-source speech processing models.
--  **Efficient**: Light enough to run on consumer hardware with low latency.
+-  **Efficient**: Light enough to run on consumer hardware, with low latency.
 -  **Self-hosted**: Entire pipeline runs offline, limited only by compute power.
 -  **Modular**: Switching LLM providers is as simple as changing an environment variable.
 
