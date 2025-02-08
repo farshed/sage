@@ -17,39 +17,26 @@ Converse with large language models using speech.
    <img alt="Sage architecture" src="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
 </picture>
 
-## Docker
+## Run
 
-Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
+1. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider. This can be configured using a .env file in the project root.
 
-_**Note**: Using docker results in significantly slower inference (5-8x slower than native)._
+   -  **If you're using Ollama**, add the `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:7b`)
 
-## Manual Setup (Without Docker)
+   -  **Among the third-party providers**, Sage supports the following out of the box:
 
-### Requirements
+      1. Deepseek
+      2. OpenAI
+      3. Anthropic
+      4. Together.ai
 
--  [Bun](https://bun.sh)
--  [Rust](https://www.rust-lang.org/tools/install)
--  [Ollama](https://ollama.com) (Alternatively, you can use a third-party provider)
+   -  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
+   -  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
 
-### Run
+2. Next, you have two choices: Run Sage as a Docker container (the easy way) or natively (the hard way). Running it with Docker has a performance penalty (Inference is 5-8x slower than running it natively).
 
-1. Run `setup-unix.sh` or `setup-win.bat` depending on your platform. This will download the required model weights and compile the binaries needed for Sage.
-
-2. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider.
-
--  **If you're using Ollama**, add the `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:7b`)
-
--  **Among the third-party providers**, Sage supports the following out of the box:
-
-   1. Deepseek
-   2. OpenAI
-   3. Anthropic
-   4. Together.ai
-
--  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
--  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
-
-3. Start the project with `bun start`. The first run on macOS is slow (~20 minutes on M1 Pro), since the ANE service compiles the Whisper CoreML model to a device-specific format. Next runs are faster.
+   -  **With Docker**: Install Docker and start the daemon. Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
+   -  **Without Docker**: Install [Bun](https://bun.sh), [Rust](https://www.rust-lang.org/tools/install), LLVM, Clang, and CMake. Make sure all of these are accessible via $PATH. Then, run `setup-unix.sh` or `setup-win.bat` depending on your platform. This will download the required model weights and compile the binaries needed for Sage. Once finished, start the project with `bun start`. _The first run on macOS is slow (~20 minutes on M1 Pro), since the ANE service compiles the Whisper CoreML model to a device-specific format. Next runs are faster._
 
 ## Future work
 
