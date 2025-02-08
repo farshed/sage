@@ -21,7 +21,7 @@ Converse with large language models using speech.
 
 Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
 
-_**Note**: Using docker results in significantly slower inference (5-8x slower) than native._
+_**Note**: Using docker results in significantly slower inference (5-8x slower than native)._
 
 ## Manual Setup (Without Docker)
 

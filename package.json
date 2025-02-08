@@ -6,7 +6,8 @@
 		"start": "bun run index.ts",
 		"clean": "find ./tmp -type f -delete",
 		"docker-build": "docker build -t sage .",
-		"docker-run": "docker run -t -i --env-file .env -p 3000:3000 sage"
+		"docker-run": "docker run -t -i --env-file .env -p 3000:3000 sage",
+		"docker-clean": "docker system prune"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"
