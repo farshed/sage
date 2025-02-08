@@ -45,6 +45,6 @@ Converse with large language models using speech.
 
 ## Future work
 
-1. Optimize the pipeline.
-2. Make it easier to run. (Dockerize?)
-3. Release as a library?
+-  [x] Make it easier to run. (Dockerize?)
+-  [ ] Optimize the pipeline
+-  [ ] Release as a library?

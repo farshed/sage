@@ -4,7 +4,9 @@
 	"type": "module",
 	"scripts": {
 		"start": "bun run index.ts",
-		"clean": "find ./tmp -type f -delete"
+		"clean": "find ./tmp -type f -delete",
+		"docker-build": "docker build -t sage .",
+		"docker-run": "docker run -t -i --env-file .env -p 3000:3000 sage"
 	},
 	"devDependencies": {
 		"@types/bun": "latest"

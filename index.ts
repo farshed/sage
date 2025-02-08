@@ -128,11 +128,16 @@ async function processTextStream(textStream: AsyncIterable<string>, ttsStream: T
 }
 
 async function time(fn: Function, label: string) {
-	const start = performance.now();
-	const result = await fn();
-	const duration = Math.round(performance.now() - start);
-	console.log(`[${label} took ${duration}ms]`);
-	return result;
+	try {
+		const start = performance.now();
+		const result = await fn();
+		const duration = Math.round(performance.now() - start);
+		console.log(`[${label} took ${duration}ms]`);
+		return result;
+	} catch (error) {
+		console.error('Error: ', error);
+		throw error;
+	}
 }
 
 function cleanTranscript(input: string) {

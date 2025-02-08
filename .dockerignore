@@ -1,0 +1,16 @@
+assets
+node_modules
+tmp
+kokoro/target
+whisper/target
+
+.env
+LICENSE
+README.md
+setup-unix.sh
+setup-win.bat
+
+models/*
+!models/ggml-large-v3-turbo.bin
+!models/kokoro-v0_19.onnx
+!models/voices.json
