@@ -17,13 +17,21 @@ Converse with large language models using speech.
    <img alt="Sage architecture" src="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
 </picture>
 
-## Requirements
+## Docker
+
+Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
+
+_**Note**: Using docker results in significantly slower inference (5-8x slower) than native._
+
+## Manual Setup (Without Docker)
+
+### Requirements
 
 -  [Bun](https://bun.sh)
 -  [Rust](https://www.rust-lang.org/tools/install)
 -  [Ollama](https://ollama.com) (Alternatively, you can use a third-party provider)
 
-## Run
+### Run
 
 1. Run `setup-unix.sh` or `setup-win.bat` depending on your platform. This will download the required model weights and compile the binaries needed for Sage.
 
