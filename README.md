@@ -35,7 +35,7 @@ Converse with large language models using speech. [DEMO](https://www.youtube.com
 
 2. Next, you have two choices: Run Sage as a Docker container (the easy way) or natively (the hard way). _Running it with Docker has a performance penalty (Inference is 5-8x slower compared to running it natively)._
 
-   -  **With Docker**: Install Docker and start the daemon. Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
+   -  **With Docker**: Install Docker and start the daemon. Download these files and place them inside a `models` directory at the project root. Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
    -  **Without Docker**: Install [Bun](https://bun.sh), [Rust](https://www.rust-lang.org/tools/install), LLVM, Clang, and CMake. Make sure all of these are accessible via `$PATH`. Then, run `setup-unix.sh` or `setup-win.bat` depending on your platform. This will download the required model weights and compile the binaries needed for Sage. Once finished, start the project with `bun start`. _The first run on macOS is slow (~20 minutes on M1 Pro), since the ANE service compiles the Whisper CoreML model to a device-specific format. Next runs are faster._
 
 ## Future work

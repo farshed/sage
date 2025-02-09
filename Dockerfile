@@ -1,3 +1,7 @@
+# https://hf-mirror.com/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx
+# https://github.com/farshed/sage/releases/download/voices.json_v0.1/voices.json
+# https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin
+
 FROM rust:latest
 
 RUN apt-get update && \
