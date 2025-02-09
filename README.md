@@ -47,6 +47,11 @@ Converse with large language models using speech. [DEMO](https://www.youtube.com
 
 ## Future work
 
--  [x] Make it easier to run. (Dockerize?)
+-  [x] Make it easier to run (Dockerize?)
+-  [ ] CUDA support
+-  [ ] Allow custom Ollama endpoint
+-  [ ] Multilingual support
+-  [ ] Allow Whisper configuration
+-  [ ] Allow customization of system prompt
 -  [ ] Optimize the pipeline
 -  [ ] Release as a library?
