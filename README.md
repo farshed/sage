@@ -33,7 +33,7 @@ Converse with large language models using speech. [DEMO](https://www.youtube.com
    -  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
    -  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
 
-2. Next, you have two choices: Run Sage as a Docker container (the easy way) or natively (the hard way).
+2. Next, you have two choices: Run Sage as a Docker container (the easy way) or natively (the hard way). _Note that running it with Docker may have a performance penalty (Inference with whisper is 4-5x slower compared to native)._
 
    -  **With Docker**: Install Docker and start the daemon. Download the following files and place them inside a `models` directory at the project root.
 
@@ -42,7 +42,6 @@ Converse with large language models using speech. [DEMO](https://www.youtube.com
       -  [ggml-large-v3-turbo.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
 
       Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
-      _Note that running it with Docker may have a performance penalty (Inference with whisper is 4-5x slower compared to native)._
 
    -  **Without Docker**: Install [Bun](https://bun.sh), [Rust](https://www.rust-lang.org/tools/install), OpenSSL, LLVM, Clang, and CMake. Make sure all of these are accessible via `$PATH`. Then, run `setup-unix.sh` or `setup-win.bat` depending on your platform. This will download the required model weights and compile the binaries needed for Sage. Once finished, start the project with `bun start`. _The first run on macOS is slow (~20 minutes on M1 Pro), since the ANE service compiles the Whisper CoreML model to a device-specific format. Next runs are faster._
 
