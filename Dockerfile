@@ -1,10 +1,10 @@
 FROM rust:latest
 
+#  Install dependencies
 RUN apt-get update && \
-    apt-get install -y curl unzip pkg-config libssl-dev llvm clang cmake && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN curl -fsSL https://bun.sh/install | bash && \
+    apt-get install -y pkg-config libssl-dev llvm clang cmake && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -fsSL https://bun.sh/install | bash && \
     mv /root/.bun/bin/bun /usr/local/bin/
 
 WORKDIR /app
