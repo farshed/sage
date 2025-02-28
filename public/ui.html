@@ -129,9 +129,7 @@
 
 					messages = data.messages;
 					audio = new Audio(data.audio);
-					audio.addEventListener('ended', () => {
-						setState(IDLE);
-					});
+					audio.addEventListener('ended', () => setState(IDLE));
 					audio.play().catch((err) => console.log('Playback error:', err));
 					setState(SPEAKING);
 				}

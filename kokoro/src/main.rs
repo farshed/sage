@@ -16,11 +16,11 @@ struct Cli {
 
     #[arg(
         short = 'l',
-        long = "lan",
+        long = "lang",
         value_name = "LANGUAGE",
         help = "https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md"
     )]
-    lan: Option<String>,
+    lang: Option<String>,
 
     #[arg(short = 'm', long = "model", value_name = "MODEL")]
     model: Option<String>,
@@ -80,9 +80,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // if users use `af_sky.4+af_nicho.3` as style name
         // then we blend it, with 0.4 af_sky + 0.3 af_nicho
 
-        let model_path = args.model.unwrap_or_else(|| "models/kokoro-v0_19.onnx".to_string());
+        let model_path = args.model.unwrap_or_else(|| "models/kokoro-v1.0.onnx".to_string());
         let style = args.style.unwrap_or_else(|| "af_sky".to_string());
-        let lan = args.lan.unwrap_or_else(|| { "en-us".to_string() });
+        let lan = args.lang.unwrap_or_else(|| { "en-us".to_string() });
 
         let tts = TTSKoko::new(&model_path);
 

@@ -12,11 +12,14 @@ import open from 'open';
 
 const CONFIG = {
 	TMP: './tmp',
+	LANGUAGE: 'en',
 	KOKORO: './kokoro/target/release/koko',
 	WHISPER: './whisper/target/release/whisper',
 	WHISPER_MODEL: './models/ggml-large-v3-turbo.bin',
-	SYSTEM_PROMPT: `Respond in plain-text only. Keep your responses short and succinct. Ignore any unusual endings like "Bye!" and "Thank you!". Provide a response that is written to be read exactly and literally as it is written. For example, instead of writing '$10-50 million', write '10 to 50 million dollars'. Avoid using symbols or abbreviations that might be misinterpreted when read literally.`
+	SYSTEM_PROMPT: `Respond in plain-text only. Keep your responses short and succinct. Ignore any unusual endings like "Bye!" and "Thank you!". Provide a response that is written to be read exactly and literally as it is written. For example, instead of writing '$10-50 million', write '10 to 50 million dollars'. Avoid using symbols or abbreviations that might be misinterpreted when read literally. Respond in the same language the user addresses you in.`
 };
+
+const DEFAULT_VOICE = {};
 
 const provider = getLLMProvider();
 const app = new Elysia();
@@ -38,7 +41,7 @@ app.post('/chat', async ({ body }) => {
 	const messages = [...prevMessages, { role: 'user', content: transcript }];
 	const { textStream } = await streamText({
 		model: provider,
-		system: CONFIG.SYSTEM_PROMPT,
+		system: envVar('SYSTEM_PROMPT'),
 		messages
 	});
 
@@ -71,8 +74,17 @@ function getLLMProvider() {
 }
 
 function transcribe(id: string): Promise<string> {
+	const env = process.env;
 	return new Promise((resolve, reject) => {
-		const whisperProcess = spawn(CONFIG.WHISPER, [CONFIG.WHISPER_MODEL, id]);
+		const whisperProcess = spawn(
+			CONFIG.WHISPER,
+			objectToArgs({
+				m: envVar('WHISPER_MODEL'),
+				l: envVar('LANGUAGE'),
+				i: id
+			})
+		);
+
 		whisperProcess.stdout.on('end', () => {
 			fs.readFile(`${CONFIG.TMP}/transcripts/${id}.txt`, 'utf-8')
 				.then((tsc) => resolve(cleanTranscript(tsc)))
@@ -89,7 +101,13 @@ class TTSStream {
 	constructor(id: string) {
 		this.path = `${CONFIG.TMP}/output/${id}.wav`;
 		this.output = createWriteStream(this.path);
-		this.kokoroProcess = spawn(CONFIG.KOKORO, ['--stream'], { stdio: 'pipe' });
+		this.kokoroProcess = spawn(
+			CONFIG.KOKORO,
+			objectToArgs({ l: envVar('LANGUAGE'), s: 'af_sky' }, ['--stream']),
+			{
+				stdio: 'pipe'
+			}
+		);
 		this.kokoroProcess.stdout.pipe(this.output);
 	}
 
@@ -138,6 +156,16 @@ async function time(fn: Function, label: string) {
 		console.error('Error: ', error);
 		throw error;
 	}
+}
+
+function envVar(name: string) {
+	return process.env[name] || (CONFIG as any)[name];
+}
+
+function objectToArgs(obj: { [key: string]: any }, extra: string[] = []) {
+	return Object.entries(obj)
+		.flatMap(([k, v]) => [`-${k}`, v])
+		.concat(extra);
 }
 
 function cleanTranscript(input: string) {

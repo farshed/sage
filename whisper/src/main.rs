@@ -1,4 +1,4 @@
-use std::env::args;
+use clap::Parser;
 use std::fs::File;
 use std::io::{Result, Write};
 use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextParameters};
@@ -7,11 +7,30 @@ use whisper_rs::{FullParams, SamplingStrategy, WhisperContext, WhisperContextPar
 // Stream?
 // Quantize?
 
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(short = 'm', long = "model", value_name = "MODEL")]
+    model: Option<String>,
+
+    #[arg(
+        short = 'l',
+        long = "lang",
+        value_name = "LANGUAGE",
+        default_value = "en",
+        help = "https://github.com/openai/whisper/blob/main/whisper/tokenizer.py#L10"
+    )]
+    lang: String,
+
+    #[arg(short = 'i', long = "file_id", value_name = "FILE_ID")]
+    id: Option<String>,
+}
+
 fn main() {
-    let model_path = args().nth(1).expect("Please specify model path");
-    let id = args().nth(2).expect("Please specify file id");
+    let args = Args::parse();
+    let model_path = args.model.expect("Please specify model path");
+    let language = args.lang;
+    let id = args.id.expect("Please specify file id");
     let wav_path = format!("./tmp/input/{}.wav", id);
-    let language = "en";
 
     let samples: Vec<i16> = hound::WavReader::open(wav_path)
         .unwrap()

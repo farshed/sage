@@ -20,7 +20,7 @@ pub struct TTSKoko {
 impl TTSKoko {
     const MODEL_URL: &str =
         "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx";
-    const JSON_DATA_F: &str = "models/voices.json";
+    const JSON_DATA_F: &str = "models/voices-v1.0.json";
 
     pub const SAMPLE_RATE: u32 = 24000;
 
@@ -205,7 +205,7 @@ impl TTSKoko {
                 let styles = vec![style[0][0].to_vec()];
                 Ok(styles)
             } else {
-                Err(format!("can not found from styles_map: {}", style_name).into())
+                Err(format!("can not find in styles_map: {}", style_name).into())
             }
         } else {
             eprintln!("parsing style mix");
