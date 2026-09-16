@@ -1,0 +1,32 @@
+[workspace]
+members = [".", "crates/parakeet", "crates/kokoro", "crates/speech-protocol"]
+default-members = [".", "crates/parakeet", "crates/kokoro", "crates/speech-protocol"]
+resolver = "2"
+
+[package]
+name = "sage"
+version = "0.2.0"
+edition = "2021"
+default-run = "sage"
+
+[dependencies]
+anyhow = "1"
+async-stream = "0.3"
+axum = { version = "0.8.9", features = ["multipart"] }
+bzip2 = "0.4"
+bytes = "1"
+clap = { version = "4.5", features = ["derive", "env"] }
+dotenvy = "0.15"
+futures-util = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "multipart", "rustls-tls"] }
+sage-protocol = { path = "crates/speech-protocol", features = ["async"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tar = "0.4"
+tokio = { version = "1.43", features = ["full"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+
+[dev-dependencies]
+tempfile = "3"
+tower = { version = "0.5", features = ["util"] }
+

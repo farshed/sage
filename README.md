@@ -1,57 +1,110 @@
 # Sage
 
-Converse with large language models using speech. [DEMO](https://www.youtube.com/watch?v=aAl0SuJVm4g)
+Talk to language models using local speech recognition and speech generation. [Demo](https://www.youtube.com/watch?v=aAl0SuJVm4g).
 
--  **Open**: Powered by state-of-the-art open-source speech processing models.
--  **Efficient**: Light enough to run on consumer hardware, with low latency.
--  **Self-hosted**: Entire pipeline runs offline, limited only by compute power.
--  **Modular**: Switching LLM providers is as simple as changing an environment variable.
-
-## How it works
-
-<br/>
-
-<picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/farshed/sage/blob/main/assets/architecture-light.png?raw=true">
-   <img alt="Sage architecture" src="https://github.com/farshed/sage/blob/main/assets/architecture-dark.png?raw=true">
-</picture>
+Sage is a Rust Cargo workspace. Bun and Node.js are not needed to build or run it. Browser JavaScript is embedded in the server and runs directly in your browser.
 
 ## Run
 
-1. For text generation, you can either self-host an LLM using Ollama, or opt for a third-party provider. This can be configured using a .env file in the project root.
+Install [Rust](https://www.rust-lang.org/tools/install) 1.91 or newer, a C/C++ toolchain, OpenSSL, LLVM/Clang, and CMake. The first build downloads native inference libraries, and model setup downloads about 1 GB of weights.
 
-   -  **If you're using Ollama**, add the `OLLAMA_MODEL` variable to the .env file to specify the model you'd like to use. (Example: `OLLAMA_MODEL=deepseek-r1:7b`)
+On macOS or Linux:
 
-   -  **Among the third-party providers**, Sage supports the following out of the box:
+```sh
+bash setup-unix.sh
+```
 
-      1. Deepseek
-      2. OpenAI
-      3. Anthropic
-      4. Together.ai
+On Windows, run `setup-win.bat` with the Rust MSVC toolchain and the native build tools available in your terminal. Setup keeps your existing `.env` and model files.
 
-   -  To use a provider, add a `<PROVIDER>_API_KEY` variable to the .env file. (Example: `OPENAI_API_KEY=xxxxxxxxxxxxxxxxxxxxxxx`)
-   -  To choose which model should be used for a given provider, use the `<PROVIDER>_MODEL` variable. (Example: `DEEPSEEK_MODEL=deepseek-chat`)
+Configure a language model in `.env`. For example, with a running Ollama server and an installed model:
 
-2. Next, you have two choices: Run Sage as a Docker container (the easy way) or natively (the hard way). _Note that running it with Docker may have a performance penalty (Inference with whisper is 4-5x slower compared to native)._
+```dotenv
+OLLAMA_MODEL=deepseek-r1:7b
+```
 
-   -  **With Docker**: Install Docker and start the daemon. Download the following files and place them inside a `models` directory at the project root.
+Then start Sage:
 
-      -  [kokoro-v0_19.onnx](https://hf-mirror.com/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx)
-      -  [voices.json](https://github.com/farshed/sage/releases/download/voices.json_v0.1/voices.json)
-      -  [ggml-large-v3-turbo.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin)
+```sh
+./target/release/sage
+```
 
-      Run `bun docker-build` to build the image and then `bun docker-run` to spin a container. The UI is exposed at `http://localhost:3000`.
+On Windows, use `target\release\sage.exe`. Open `http://localhost:3000`. Microphone access needs localhost or HTTPS.
 
-   -  **Without Docker**: Install [Bun](https://bun.sh), [Rust](https://www.rust-lang.org/tools/install), OpenSSL, LLVM, Clang, and CMake. Make sure all of these are accessible via `$PATH`. Then, run `setup-unix.sh` or `setup-win.bat` depending on your platform. This will download the required model weights and compile the binaries needed for Sage. Once finished, start the project with `bun start`. _The first run on macOS is slow (~20 minutes on M1 Pro), since the ANE service compiles the Whisper CoreML model to a device-specific format. Next runs are faster._
+The equivalent manual setup is:
 
-## Future work
+```sh
+cargo build --release --locked --workspace
+./target/release/sage download-models
+./target/release/sage
+```
 
--  [x] Make it easier to run (Dockerize?)
--  [ ] CUDA support
--  [ ] Allow custom Ollama endpoint
--  [ ] Multilingual support
--  [ ] Allow Whisper configuration
--  [ ] Allow customization of system prompt
--  [ ] Optimize the pipeline
--  [ ] Release as a library?
+After setup, `cargo run` also starts Sage. It looks for speech workers in `target/debug`, then uses the workers from `target/release` if needed. `cargo run` only builds the server; use `cargo build --workspace` to build debug workers or `cargo build --release --workspace` to build release workers. An explicit `--worker-dir` or `SAGE_WORKER_DIR` overrides this lookup.
+
+`cargo run --release -p sage` starts the release server. Keep `sage`, `parakeet`, and `kokoro` together when distributing the application. Moving them to another machine also requires the matching native runtime files, including `espeak-ng-data` from `target/release/build/espeak-rs-sys-*/out/share/`. Docker packages these files for you.
+
+## Configuration
+
+Sage reads `.env` in the current directory. Existing environment variables take precedence.
+
+| Provider | Required setting | Optional model setting | Default model |
+| --- | --- | --- | --- |
+| Ollama | `OLLAMA_MODEL` | Already specified | None |
+| DeepSeek | `DEEPSEEK_API_KEY` | `DEEPSEEK_MODEL` | `deepseek-chat` |
+| Anthropic | `ANTHROPIC_API_KEY` | `ANTHROPIC_MODEL` | `claude-3-5-haiku-20241022` |
+| OpenAI | `OPENAI_API_KEY` | `OPENAI_MODEL` | `gpt-4-turbo` |
+| Together.ai | `TOGETHER_AI_API_KEY` | `TOGETHER_AI_MODEL` | `deepseek-ai/DeepSeek-V3` |
+
+If several providers are configured, the first one in this table wins. You can select another model offered by your provider. Each provider supports a matching `_BASE_URL` setting. `OLLAMA_BASE_URL` defaults to `http://localhost:11434`; cloud provider base URLs include any API version prefix, such as `https://api.openai.com/v1`.
+
+| Setting | Default |
+| --- | --- |
+| `SAGE_HOST` or `--host` | `127.0.0.1` |
+| `PORT` or `--port` | `3000` |
+| `SAGE_MODELS_DIR` or `--models-dir` | `models` in the current directory |
+| `PARAKEET_MODEL_DIR` | Parakeet's model folder inside the models directory |
+| `SAGE_WORKER_DIR` or `--worker-dir` | Directory containing Sage; debug builds also check the sibling release directory |
+
+`download-models` honors the model directory settings. Old Whisper weights are unused and can be removed manually.
+
+## Workspace and pipeline
+
+| Package | Purpose |
+| --- | --- |
+| `sage` in `src/` | HTTP server, LLM streaming, model downloads, worker management |
+| `crates/parakeet` | Parakeet TDT speech recognition through sherpa-onnx |
+| `crates/kokoro` | Kokoro speech generation |
+| `crates/speech-protocol` | Shared binary framing for the speech workers |
+
+1. The browser records a WAV file and sends it to the Rust server.
+2. Parakeet TDT 0.6B v3 transcribes it locally using INT8 ONNX models on the CPU.
+3. The LLM streams text. Short sentences and clauses go to Kokoro while more text is arriving.
+4. Kokoro returns mono 24 kHz audio. The server streams it to an AudioWorklet for playback.
+
+Both speech models load once and stay in memory. Separate worker processes keep their native inference runtimes isolated and allow restart after a crash or timeout. WAV, text, and PCM data travel through process pipes and the HTTP response without temporary files. See [the protocol](docs/protocol.md).
+
+Queues are bounded so slow playback does not grow memory without limit. Clicking during thinking or speaking cancels playback and the LLM request. A speech worker finishes its active chunk, discards its output, and skips cancelled queued work. Conversation history updates only after a complete response. The server logs transcription, first audio, and total response times.
+
+Speech processing is local. Cloud LLM providers receive conversation text. Ollama can keep text generation local too. The page currently loads Tailwind from a CDN. Parakeet supports multiple languages; the Kokoro voice is configured for US English.
+
+## Docker
+
+```sh
+docker build -t sage .
+docker run --rm -v "$PWD/models:/app/models" sage sage download-models
+docker run --rm -p 3000:3000 --env-file .env -v "$PWD/models:/app/models" sage
+```
+
+For Ollama running on a Docker Desktop host, set `OLLAMA_BASE_URL=http://host.docker.internal:11434`. On Linux, also pass `--add-host=host.docker.internal:host-gateway`. Use `SAGE_HOST=0.0.0.0` if your `.env` overrides the container's listening address.
+
+## Checks
+
+```sh
+cargo fmt --all --check
+cargo test --workspace --locked
+cargo clippy -p sage -p sage-protocol -p parakeet --all-targets --locked -- -D warnings
+./target/release/sage check-speech
+```
+
+Rust tests cover framing, audio conversion, text chunking, provider stream decoding, worker reuse, cancellation, crash and timeout recovery, upload validation, and streamed responses. `check-speech` uses the actual models and a local mock LLM. It checks repeated transcription, invalid audio recovery, and audio arriving over HTTP before the mock LLM finishes. No provider key is needed.
+
+The optional browser logic tests remain in `tests/browser` and can be run with `bun test tests/browser`. They use mocked browser APIs and are separate from building, testing, or running the Rust application.

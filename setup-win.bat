@@ -1,27 +1,11 @@
 @echo off
+setlocal
+cd /d "%~dp0"
 
-:: create .env
-echo. > .env
+if not exist .env type nul > .env
+cargo build --release --locked --workspace
+if errorlevel 1 exit /b 1
+target\release\sage.exe download-models
+if errorlevel 1 exit /b 1
 
-:: create directories
-
-mkdir models tmp
-mkdir tmp\input tmp\output tmp\transcripts
-
-:: install deps
-bun install
-
-:: download models
-
-echo Downloading models...
-cd models
-curl -O https://hf-mirror.com/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx
-curl -O https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bin
-curl -O https://github.com/farshed/sage/releases/download/voices.json_v0.1/voices.json
-
-:: compile whisper and kokoro
-
-cd ..\whisper
-cargo build --release
-cd ..\kokoro
-cargo build --release
+echo Setup complete. Configure your LLM in .env, then run target\release\sage.exe.

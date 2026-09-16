@@ -19,8 +19,7 @@ pub struct TTSKoko {
 
 impl TTSKoko {
     const MODEL_URL: &str =
-        "https://huggingface.co/hexgrad/Kokoro-82M/resolve/main/kokoro-v0_19.onnx";
-    const JSON_DATA_F: &str = "models/voices.json";
+        "https://huggingface.co/hexgrad/Kokoro-82M/resolve/f4e895d7c38097d813b7a6939f335200dcd9b21e/kokoro-v0_19.onnx";
 
     pub const SAMPLE_RATE: u32 = 24000;
 
@@ -53,17 +52,15 @@ impl TTSKoko {
     fn split_text_into_chunks(&self, text: &str, max_tokens: usize) -> Vec<String> {
         let mut chunks = Vec::new();
 
-        // First split by sentences - using common sentence ending punctuation
         let sentences: Vec<&str> = text
-            .split(|c| c == '.' || c == '?' || c == '!' || c == ';')
+            .split_inclusive(['.', '?', '!', ';'])
             .filter(|s| !s.trim().is_empty())
             .collect();
 
         let mut current_chunk = String::new();
 
         for sentence in sentences {
-            // Clean up the sentence and add back punctuation
-            let sentence = format!("{}.", sentence.trim());
+            let sentence = sentence.trim().to_string();
 
             // Convert to phonemes to check token count
             let sentence_phonemes = text_to_phonemes(&sentence, "en", None, true, false)
@@ -241,7 +238,11 @@ impl TTSKoko {
 
     pub fn load_voices(&mut self) {
         // load from json, get styles
-        let values = load_json_file(TTSKoko::JSON_DATA_F);
+        let values = load_json_file(
+            &Path::new(&self.model_path)
+                .with_file_name("voices.json")
+                .to_string_lossy(),
+        );
         if let Ok(values) = values {
             if let Some(obj) = values.as_object() {
                 for (key, value) in obj {

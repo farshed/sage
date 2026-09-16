@@ -1,0 +1,10 @@
+[package]
+name = "sage-protocol"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+async = ["dep:tokio"]
+
+[dependencies]
+tokio = { version = "1.43", features = ["io-util"], optional = true }

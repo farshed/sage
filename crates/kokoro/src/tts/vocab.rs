@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 pub fn get_vocab() -> std::collections::HashMap<char, usize> {
     let pad = "$";
-    let punctuation = ";:,.!?¡¿—…\"«»“” ";
+    let punctuation = ";:,.!?¡¿\u{2014}…\"«»“” ";
     let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     let letters_ipa = "ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ";
 

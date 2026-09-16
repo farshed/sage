@@ -1,0 +1,9 @@
+[package]
+name = "parakeet"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sage-protocol = { path = "../speech-protocol" }
+hound = "3.5.1"
+sherpa-onnx = "=1.13.8"

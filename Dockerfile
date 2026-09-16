@@ -1,23 +1,24 @@
-FROM rust:latest
+FROM rust:1.91-bookworm AS builder
 
-#  Install dependencies
 RUN apt-get update && \
-    apt-get install -y pkg-config libssl-dev llvm clang cmake && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -fsSL https://bun.sh/install | bash && \
-    mv /root/.bun/bin/bun /usr/local/bin/
+    apt-get install -y --no-install-recommends pkg-config libssl-dev llvm clang cmake && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /build
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+COPY src ./src
+COPY public ./public
+RUN cargo build --release --locked --workspace && \
+    mkdir /dist && \
+    cp target/release/sage target/release/parakeet target/release/kokoro /dist/ && \
+    cp -R target/release/build/espeak-rs-sys-*/out/share/espeak-ng-data /dist/
 
+FROM debian:bookworm-slim
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates libssl3 libstdc++6 libgomp1 && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=builder /dist/ /usr/local/bin/
 WORKDIR /app
-
-RUN mkdir -p /app/models /app/tmp/input /app/tmp/output /app/tmp/transcripts
-
-COPY . .
-
-RUN cd whisper && cargo build --release && \
-    cd ../kokoro && cargo build --release && \
-    cd .. && \
-    bun install
-
+ENV SAGE_HOST=0.0.0.0
 EXPOSE 3000
-
-CMD ["bun", "start"]
+CMD ["sage"]

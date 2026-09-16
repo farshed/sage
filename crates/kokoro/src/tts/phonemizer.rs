@@ -5,7 +5,7 @@ use regex::Regex;
 
 lazy_static! {
     static ref PHONEME_PATTERNS: Regex = Regex::new(r"(?<=[a-zɹː])(?=hˈʌndɹɪd)").unwrap();
-    static ref Z_PATTERN: Regex = Regex::new(r#" z(?=[;:,.!?¡¿—…"«»"" ]|$)"#).unwrap();
+    static ref Z_PATTERN: Regex = Regex::new(r#" z(?=[;:,.!?¡¿\x{2014}…"«»"" ]|$)"#).unwrap();
     static ref NINETY_PATTERN: Regex = Regex::new(r"(?<=nˈaɪn)ti(?!ː)").unwrap();
 }
 

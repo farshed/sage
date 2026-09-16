@@ -2,7 +2,13 @@ mod onn;
 mod tts;
 mod utils;
 
-use std::{fs::{self}, io::Write, path::Path};
+use sage_protocol as protocol;
+
+use std::{
+    fs::{self},
+    io::Write,
+    path::Path,
+};
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 use crate::utils::wav::{write_audio_chunk, WavHeader};
@@ -11,6 +17,9 @@ use tts::koko::TTSKoko;
 
 #[derive(Parser, Debug)]
 struct Cli {
+    #[arg(long, conflicts_with = "stream")]
+    worker: bool,
+
     #[arg(short = 't', long = "text", value_name = "TEXT")]
     text: Option<String>,
 
@@ -33,6 +42,37 @@ struct Cli {
 
     #[arg(long = "stream", help = "Enable streaming mode")]
     stream: bool,
+}
+
+fn handle_worker_mode(
+    tts: &TTSKoko,
+    lan: &str,
+    style: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut input = std::io::stdin().lock();
+    let mut output = std::io::BufWriter::new(std::io::stdout().lock());
+    protocol::write_frame(&mut output, protocol::READY, &[])?;
+    while let Some(bytes) = protocol::read_request(&mut input)? {
+        let result = String::from_utf8(bytes)
+            .map_err(|error| Box::<dyn std::error::Error>::from(error))
+            .and_then(|text| tts.tts_raw_audio(&text, lan, style));
+        match result {
+            Ok(samples) => {
+                for chunk in samples.chunks(4096) {
+                    let bytes: Vec<u8> = chunk
+                        .iter()
+                        .flat_map(|sample| sample.to_le_bytes())
+                        .collect();
+                    protocol::write_frame(&mut output, protocol::DATA, &bytes)?;
+                }
+                protocol::write_frame(&mut output, protocol::DONE, &[])?;
+            }
+            Err(error) => {
+                protocol::write_frame(&mut output, protocol::ERROR, error.to_string().as_bytes())?
+            }
+        }
+    }
+    Ok(())
 }
 async fn handle_streaming_mode(
     tts: &TTSKoko,
@@ -86,10 +126,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let tts = TTSKoko::new(&model_path);
 
+        if args.worker {
+            return handle_worker_mode(&tts, &lan, &style);
+        }
+
         if args.stream {
             handle_streaming_mode(&tts, &lan, &style).await?;
             Ok(())
-        } 
+        }
         else {
             let mut txt = args.text;
             if txt.is_none() {
@@ -99,13 +143,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     As the night falls, I wish you all a peaceful and restful sleep. May your dreams be filled with joy and happiness. Good night, and sweet dreams!
                 "#.to_string());
             }
-        
+
             if let Some(txt_path) = &txt {
                 let path = Path::new(txt_path);
                 if path.exists() && path.is_file() {
                     let file_content = fs::read_to_string(txt_path)?;
                     for (i, line) in file_content.lines().enumerate() {
-                        let stripped_line = line.trim(); 
+                        let stripped_line = line.trim();
                         if !stripped_line.is_empty() {
                             let save_path = format!("tmp/output_{}.wav", i);
                             tts.tts(stripped_line, &lan, &style, &save_path)?;
@@ -114,7 +158,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     return Ok(());
                 }
             }
-        
+
             if let Some(text) = txt {
                 let save_path = "tmp/output.wav";
                 tts.tts(&text, &lan, &style, &save_path)?;
